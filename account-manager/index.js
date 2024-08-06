@@ -63,6 +63,8 @@ fastify.addHook('onRequest', async (request, reply) => {
 fastify.post('/accounts', async (request, reply) => {
     const username = request.user.username;
     const { accountType } = request.body;
+    let { balance } = request.body;
+    balance = balance || 0;
     
     const user = await User.findOne({ username });
   
@@ -78,6 +80,7 @@ fastify.post('/accounts', async (request, reply) => {
     const newAccount = new PaymentAccount({
       userId: user._id,
       accountType,
+      balance
     });
   
     await newAccount.save();

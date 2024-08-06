@@ -13,6 +13,7 @@
   "dependencies": {
     "fastify": "^4.28.1",
     "fastify-jwt": "^4.2.0",
-    "fastify-mongodb": "^4.2.0"
+    "fastify-mongodb": "^4.2.0",
+    "mongoose": "^8.5.2"
   }
 }

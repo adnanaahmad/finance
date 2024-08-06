@@ -1,6 +1,7 @@
 const fastify = require('fastify')({ logger: true });
 const jwt = require('fastify-jwt');
-const { PaymentAccount, Transaction } = require('../account-manager/models');
+const mongoose = require('mongoose');
+const { PaymentAccount, Transaction } = require('./models');
 
 // Connect to MongoDB
 // Connect to MongoDB
@@ -35,12 +36,9 @@ async function processTransaction(type, accountId, amount, toAddress = null) {
     throw new Error('Account not found');
   }
 
-  if (type === 'withdraw' && account.balance < amount) {
+  if (account.balance < amount) {
     throw new Error('Insufficient balance');
   }
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
 
   try {
     let transaction;
@@ -60,16 +58,16 @@ async function processTransaction(type, accountId, amount, toAddress = null) {
         status: 'pending'
       });
 
-      await transaction.save({ session });
+      await transaction.save();
 
       account.balance -= amount;
-      await account.save({ session });
+      await account.save();
 
       toAccount.balance += amount;
-      await toAccount.save({ session });
+      await toAccount.save();
 
       transaction.status = 'success';
-      await transaction.save({ session });
+      await transaction.save();
 
     } else if (type === 'withdraw') {
       transaction = new Transaction({
@@ -79,22 +77,17 @@ async function processTransaction(type, accountId, amount, toAddress = null) {
         status: 'pending'
       });
 
-      await transaction.save({ session });
+      await transaction.save();
 
       account.balance -= amount;
-      await account.save({ session });
+      await account.save();
 
       transaction.status = 'success';
-      await transaction.save({ session });
+      await transaction.save();
     }
-
-    await session.commitTransaction();
-    session.endSession();
 
     return transaction;
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
     throw err;
   }
 }

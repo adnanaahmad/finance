@@ -103,8 +103,7 @@ fastify.get('/accounts', async (request, reply) => {
 // API to retrieve all transactions of an account
 fastify.get('/accounts/:accountId/transactions', async (request, reply) => {
   const { accountId } = request.params;
-  const transactions = await Transaction.find({ accountId });
-
+  const transactions = await Transaction.find({ $or: [{ accountId }, { toAddress: accountId }] });
   reply.send(transactions);
 });
 

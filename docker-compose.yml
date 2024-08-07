@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  account-manager:
+    build:
+      context: ./account-manager
+    container_name: account_manager
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/finance
+      - JWT_SECRET=supersecret
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+
+  payment-manager:
+    build:
+      context: ./payment-manager
+    container_name: payment_manager
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/finance
+      - JWT_SECRET=supersecret
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+
+volumes:
+  mongo-data:

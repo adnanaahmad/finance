@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const { User, PaymentAccount, Transaction } = require('./models');
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/finance', {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -16,7 +16,7 @@ mongoose.connect('mongodb://localhost:27017/finance', {
 });
 
 // Register plugins
-fastify.register(jwt, { secret: 'supersecret' });
+fastify.register(jwt, { secret: process.env.JWT_SECRET });
 fastify.register(bcrypt, { saltWorkFactor: 12 });
 
 // User Registration
@@ -110,7 +110,7 @@ fastify.get('/accounts/:accountId/transactions', async (request, reply) => {
 // Run the server
 const start = async () => {
   try {
-    await fastify.listen(3000);
+    await fastify.listen(3000, '0.0.0.0');
     fastify.log.info(`Account Manager service running on http://localhost:3000`);
   } catch (err) {
     fastify.log.error(err);

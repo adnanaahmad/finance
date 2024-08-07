@@ -5,7 +5,7 @@ const { PaymentAccount, Transaction } = require('./models');
 
 // Connect to MongoDB
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/finance', {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -17,7 +17,7 @@ mongoose.connect('mongodb://localhost:27017/finance', {
 
 
 // Register plugins
-fastify.register(jwt, { secret: 'supersecret' });
+fastify.register(jwt, { secret: process.env.JWT_SECRET });
 
 // Middleware to protect routes
 fastify.addHook('onRequest', async (request, reply) => {
@@ -119,7 +119,7 @@ fastify.post('/withdraw', async (request, reply) => {
 // Run the server
 const start = async () => {
   try {
-    await fastify.listen(3001);
+    await fastify.listen(3001, '0.0.0.0');
     fastify.log.info(`Payment Manager service running on http://localhost:3001`);
   } catch (err) {
     fastify.log.error(err);
